@@ -30,5 +30,6 @@ add_executable(${TARGET_NAME}
   ${SRCS} ${HDRS}
 )
 
-target_link_libraries(${TARGET_NAME})
+target_link_libraries(${TARGET_NAME}
+)
 install(TARGETS ${TARGET_NAME} DESTINATION .)
