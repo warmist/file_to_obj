@@ -9,7 +9,7 @@ For use with cmake:
 * `embed_file( <LIST OF FILES TO EMBED> )`
 * add to `add_executable(...)` optionaly: `${EMBEDDED_HDRS}` and mandatory: `${EMBEDDED_LIBS}`
 * `include_directories(${PROJECT_BINARY_DIR})` because i forget if it already looks for headers there?
-* in your cpp file #include "<EMBEDED FILE NAME>.hpp" and it will contain: `EMB_FILE_<FILE NAME>` and `EMB_FILE_SIZE_<FILE NAME>`
+* in your cpp file `#include "<EMBEDED FILE NAME>.hpp"` and it will contain: `EMB_FILE_<FILE NAME>` and `EMB_FILE_SIZE_<FILE NAME>`
 * Have fun!
 
 # WHY?
