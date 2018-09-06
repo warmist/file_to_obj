@@ -15,3 +15,8 @@ For use with cmake:
 # WHY?
 
 Not sure... Probably sanity is getting low... And i liked the `ld` having that power and basically alternatives: [here](https://stackoverflow.com/questions/4864866/c-c-with-gcc-statically-add-resource-files-to-executable-library)
+
+# Resources
+
+* https://docs.microsoft.com/en-us/windows/desktop/Debug/pe-format
+* http://www.delorie.com/djgpp/doc/coff/
