@@ -1,12 +1,11 @@
 cmake_minimum_required (VERSION 2.9)
-project (supahincluder CXX C)
+project (file_to_obj CXX C)
 
-set(TARGET_NAME "supahincluder")
+set(TARGET_NAME "file_to_obj")
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
    message(FATAL_ERROR "In-source builds are not allowed.")
 endif()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 #dependancies
 
