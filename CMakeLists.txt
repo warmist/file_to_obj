@@ -17,18 +17,18 @@ include(InstallRequiredSystemLibraries)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(SRCS
+add_executable(${TARGET_NAME} testas.obj
   main.cpp
-)
-
-set(HDRS
-
-)
-
-add_executable(${TARGET_NAME}
-  ${SRCS} ${HDRS}
 )
 
 target_link_libraries(${TARGET_NAME}
 )
 install(TARGETS ${TARGET_NAME} DESTINATION .)
+
+add_executable(test_cpp  test_cpp.cpp
+	#test_cpp_payload.obj # todo: how to make this "if exists"
+)
+
+add_executable(test_c test_c.cpp
+	#test_c_payload.obj # todo: how to make this "if exists"
+)

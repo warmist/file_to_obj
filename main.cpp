@@ -51,7 +51,7 @@ enum section_flags {
 	IMAGE_SCN_MEM_READ = 0x40000000,
 };
 #define CAST_VALUE(tname,data) *(reinterpret_cast<tname*>(data))
-#if 0 //used to load/test the obj files to see how they work
+#if 1 //used to load/test the obj files to see how they work
 void load_obj(char* fname)
 {
 	auto f = fopen(fname, "rb");
@@ -180,7 +180,6 @@ void create_obj(const char* fname,const char* payload, size_t payload_size,const
 	for (int i = 0; i<align_value(sizeof(size_t), 8) - sizeof(size_t); i++)
 		fputc(0, f);
 	//symbols
-	//uint32_t strings_offset = hdr.ptr_symbols + sizeof(symbol) * 2+4;
 	uint32_t strings_size = 0;
 	bool write_data_str = write_symbol(f, name_data, 0, strings_size);
 	bool write_name_str = write_symbol(f, name_size, align_value(payload_size, 8), strings_size);
@@ -198,6 +197,76 @@ void create_header(const char* fname, const char* name_data, const char* name_si
 	fprintf(f, "#pragma once\nextern \"C\" {\nextern const char %s[];\nextern const size_t %s;\n}\n", name_data, name_size);
 	fclose(f);
 }
+void append_hex(std::string& trg, size_t value)
+{
+	if (value == 0)
+		return;
+	int rem = value % 16;
+	value /= 16;
+	append_hex(trg, value);
+
+	trg.append(1,char(rem + 'A'));
+}
+std::string mangle_size(size_t s)
+{
+	std::string ret;
+	/*
+		number mangling:
+			1<= N <= 10  | (N - 1) as a decimal number (in real case did not happen!)
+			N > 10       | code N as a hexadecimal number without leading zeroes, replace the hexadecimal digits 0 - F by the letters A - P, end with a @			N = 0		 | A@			N < 0        | ? followed by above
+	*/
+	if (s == 0)
+		return "A@";
+	append_hex(ret, s);
+	return ret;
+}
+//creates extern const std::array<char,[size]>={data};
+void create_obj_cpp(const char* fname, const char* payload, size_t payload_size, const char* name_data)
+{
+	uint32_t data_size = align_value(payload_size, 8) ;
+	//header
+	coff_header hdr = { 0 };
+	hdr.machine = 0x8664;
+	hdr.no_sections = 1;
+	hdr.no_symbols = 1;
+	hdr.ptr_symbols = sizeof(coff_header) + sizeof(section_header) + data_size;
+	time_t cur_time = time(NULL);
+	hdr.time_stamp = (uint32_t)cur_time;
+
+	auto f = fopen(fname, "wb");
+	fwrite(&hdr, sizeof(hdr), 1, f);
+	//sections
+	section_header rdata = { 0 };
+	strcpy(rdata.name, ".rdata");
+
+	rdata.size_raw_data = data_size;
+	rdata.flags = IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_ALIGN_8BYTES | IMAGE_SCN_MEM_READ;
+	rdata.ptr_raw_data = sizeof(hdr) + sizeof(rdata);
+	fwrite(&rdata, sizeof(rdata), 1, f);
+	//actual rdata
+	//now write the data
+	fwrite(payload, payload_size, 1, f);
+	//now write padding - probably not needed!
+	for (int i = 0; i<align_value(payload_size, 8) - payload_size; i++)
+		fputc(0, f);
+	//symbols
+	uint32_t strings_size = 0;
+	char buffer[256] = { 0 };
+	auto mangled_size = mangle_size(payload_size);
+	sprintf(buffer, "?%s@@3V?$array@D$0%s@@std@@B", name_data, mangled_size.c_str());
+	bool write_data_str = write_symbol(f, buffer, 0, strings_size);
+	strings_size += sizeof(strings_size);
+	fwrite(&strings_size, sizeof(strings_size), 1, f);
+	if (write_data_str)
+		fwrite(buffer, strlen(buffer) + 1, 1, f);
+	fclose(f);
+}
+void create_header_cpp(const char* fname, const char* name_data,size_t size)
+{
+	auto f = fopen(fname, "w");
+	fprintf(f, "#pragma once\n#include <array>\nextern const std::array<char,%lld> %s;\n",  size, name_data);
+	fclose(f);
+}
 bool load_file(const char* fname,std::vector<char>& buffer)
 {
 	auto f = fopen(fname, "rb");
@@ -211,14 +280,35 @@ bool load_file(const char* fname,std::vector<char>& buffer)
 	fclose(f);
 	return true;
 }
+
+int main_cpp(int argc, char** argv)
+{
+	std::vector<char> payload_data;
+	if (!load_file(argv[2], payload_data))
+	{
+		printf("Failed to load file:%s", argv[2]);
+		return -1;
+	}
+	std::string fname = argv[4];
+	std::string out_obj_path = std::string(argv[3]) + "/" + fname + ".obj";
+	std::string out_header_path = std::string(argv[3]) + "/" + fname + ".hpp";
+
+	create_obj_cpp(out_obj_path.c_str(), payload_data.data(), payload_data.size(), argv[5]);
+	create_header_cpp(out_header_path.c_str(), argv[5], payload_data.size());
+}
 int main(int argc, char** argv)
 {
 	//TODO: make last 3 args optional, but that needs path splitting and stuff...
-	if (argc <= 6)
+
+	if (argc < 6)
 	{
 		
-		printf("Usage: <path_to_payload> <output_path> <out_file_name> <data_variable_name> <data_size_name>\n");
+		printf("Usage: [-cpp] <path_to_payload> <output_path> <out_file_name> <data_variable_name> [<data_size_name>]\n  last arg is only needed in non-cpp mode");
 		return -1;
+	}
+	if (argv[1] == std::string("-cpp"))
+	{
+		return main_cpp(argc, argv);
 	}
 	std::vector<char> payload_data;
 	if (!load_file(argv[1], payload_data))
@@ -232,4 +322,5 @@ int main(int argc, char** argv)
 
 	create_obj(out_obj_path.c_str(), payload_data.data(), payload_data.size(), argv[4], argv[5]);
 	create_header(out_header_path.c_str(), argv[4], argv[5]);
+	return 0;
 }
