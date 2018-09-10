@@ -20,3 +20,4 @@ Not sure... Probably sanity is getting low... And i liked the `ld` having that p
 
 * https://docs.microsoft.com/en-us/windows/desktop/Debug/pe-format
 * http://www.delorie.com/djgpp/doc/coff/
+* https://www.agner.org/optimize/calling_conventions.pdf
