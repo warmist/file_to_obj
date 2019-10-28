@@ -20,3 +20,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_executable(${TARGET_NAME} main.cpp )
 
 install(TARGETS ${TARGET_NAME} DESTINATION .)
+install(FILES assets/EmbedFileFTO.cmake DESTINATION cmake)
+
+add_subdirectory(tests/c)
+add_subdirectory(tests/cpp)

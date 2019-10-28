@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "build/test_cpp_payload.hpp"
+#include "test_cpp_payload.hpp"
 int main(int argc, char const *argv[])
 {
 	printf("Payload size: %lld\n", payload.size());
