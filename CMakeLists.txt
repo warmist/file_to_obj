@@ -17,18 +17,6 @@ include(InstallRequiredSystemLibraries)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_executable(${TARGET_NAME} testas.obj
-  main.cpp
-)
+add_executable(${TARGET_NAME} main.cpp )
 
-target_link_libraries(${TARGET_NAME}
-)
 install(TARGETS ${TARGET_NAME} DESTINATION .)
-
-add_executable(test_cpp  test_cpp.cpp
-	#test_cpp_payload.obj # todo: how to make this "if exists"
-)
-
-add_executable(test_c test_c.cpp
-	#test_c_payload.obj # todo: how to make this "if exists"
-)
