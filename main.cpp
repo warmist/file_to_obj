@@ -296,6 +296,8 @@ int main_cpp(int argc, char** argv)
 
     create_obj_cpp(out_obj_path.c_str(), payload_data.data(), payload_data.size(), argv[5]);
     create_header_cpp(out_header_path.c_str(), argv[5], payload_data.size());
+
+    return 0;
 }
 int main(int argc, char** argv)
 {
