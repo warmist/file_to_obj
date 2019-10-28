@@ -51,7 +51,7 @@ enum section_flags {
 	IMAGE_SCN_MEM_READ = 0x40000000,
 };
 #define CAST_VALUE(tname,data) *(reinterpret_cast<tname*>(data))
-#if 1 //used to load/test the obj files to see how they work
+#if 0 //used to load/test the obj files to see how they work
 void load_obj(char* fname)
 {
 	auto f = fopen(fname, "rb");
