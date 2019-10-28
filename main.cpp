@@ -71,7 +71,6 @@ void load_obj(char* fname)
 	auto ptr = buffer.data() + sizeof(coff_header);
 	auto ptr_start = buffer.data();
 	std::vector<std::pair<section_header, std::vector<char> >> shdrs(hdr.no_sections);
-	
 
 	for(auto& sh: shdrs)
 	{
@@ -163,7 +162,7 @@ void create_obj(const char* fname,const char* payload, size_t payload_size,const
 	//sections
 	section_header rdata = { 0 };
 	strcpy(rdata.name, ".rdata");
-	
+
 	rdata.size_raw_data = data_size;
 	rdata.flags = IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_ALIGN_8BYTES | IMAGE_SCN_MEM_READ;
 	rdata.ptr_raw_data = sizeof(hdr) + sizeof(rdata);
@@ -213,7 +212,9 @@ std::string mangle_size(size_t s)
 	/*
 		number mangling:
 			1<= N <= 10  | (N - 1) as a decimal number (in real case did not happen!)
-			N > 10       | code N as a hexadecimal number without leading zeroes, replace the hexadecimal digits 0 - F by the letters A - P, end with a @			N = 0		 | A@			N < 0        | ? followed by above
+			N > 10       | code N as a hexadecimal number without leading zeroes, replace the hexadecimal digits 0 - F by the letters A - P, end with a @
+			N = 0		 | A@
+			N < 0        | ? followed by above
 	*/
 	if (s == 0)
 		return "A@";
@@ -302,7 +303,6 @@ int main(int argc, char** argv)
 
 	if (argc < 6)
 	{
-		
 		printf("Usage: [-cpp] <path_to_payload> <output_path> <out_file_name> <data_variable_name> [<data_size_name>]\n  last arg is only needed in non-cpp mode");
 		return -1;
 	}
